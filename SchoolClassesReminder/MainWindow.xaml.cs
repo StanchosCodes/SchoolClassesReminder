@@ -15,6 +15,11 @@ namespace SchoolClassesReminder
         private int durationOfBigRecess;
         private TimeSpan timeLeft;
         private DispatcherTimer timer;
+        private int classesCounter = 0;
+        private int recessesCounter = 0;
+        private long dirationOfClassesInTicks = 0;
+        private long dirationOfRecessesInTicks = 0;
+        private long dirationOfBigRecessInTicks = 0;
 
         public MainWindow()
         {
@@ -68,33 +73,26 @@ namespace SchoolClassesReminder
                     this.durationOfBigRecess = int.Parse(txtDurationOfBigRecess.Text);
                     lblValueDurationOfBigRecess.Content = this.durationOfBigRecess + " minutes";
                     txtDurationOfBigRecess.Clear();
+
+                    this.dirationOfBigRecessInTicks = this.durationOfBigRecess * TimeSpan.TicksPerMinute;
                 } else
                 {
                     lblDurationOfBigRecess.Visibility = Visibility.Hidden;
                     lblValueDurationOfBigRecess.Visibility = Visibility.Hidden;
                 }
 
-                    txtNumberOfClasses.Clear();
+                txtNumberOfClasses.Clear();
                 txtDurationOfClasses.Clear();
                 txtDurationOfRecesses.Clear();
 
-                long durationOfClassesInTicks = this.durationOfClasses * TimeSpan.TicksPerMinute;
-
-                this.timeLeft = new TimeSpan(durationOfClassesInTicks);
-
-                if (this.timer.IsEnabled)
-                {
-                    this.timer.Stop();
-                    this.timer = new DispatcherTimer();
-                }
-
-                this.timer.Interval = TimeSpan.FromSeconds(1);
-                this.timer.Tick += Timer_Tick;
-                this.timer.Start();
-
-                lblTitleNext.Content = "Recess in:";
-
                 Win.MessageBox.Show("Details added!");
+
+                this.dirationOfClassesInTicks = this.durationOfClasses * TimeSpan.TicksPerMinute;
+                this.dirationOfRecessesInTicks = this.durationOfRecesses * TimeSpan.TicksPerMinute;
+
+                InitiateTimer(this.dirationOfClassesInTicks);
+                lblTitleNext.Content = "Recess in:";
+                this.classesCounter++;
             }
             else
             {
@@ -107,8 +105,36 @@ namespace SchoolClassesReminder
             if (this.timeLeft.Hours == 0 && this.timeLeft.Minutes == 0 && this.timeLeft.Seconds == 0)
             {
                 this.timer.Stop();
-                Win.MessageBox.Show("The class has ended. Your recess starts now!");
-                lblTitleNext.Content = "Next class in:";
+                
+                if (classesCounter < this.numberOfClasses)
+                {
+                    if (recessesCounter < classesCounter)
+                    {
+                        InitiateTimer(this.dirationOfRecessesInTicks);
+                        lblTitleNext.Content = "Next class in:";
+                        App.ShowBallonTip("The class has ended", "Your recess starts now!");
+                        this.recessesCounter++;
+                    } else
+                    {
+                        InitiateTimer(this.dirationOfClassesInTicks);
+                        App.ShowBallonTip("The recess has ended", "Your next class starts now!");
+                        this.classesCounter++;
+
+                        if (this.classesCounter != this.numberOfClasses)
+                        {
+                            lblTitleNext.Content = "Recess in:";
+                        }
+                        else
+                        {
+                            lblTitleNext.Content = "This is your last class!";
+                        }
+                    }
+                }
+                else
+                {
+                    App.ShowBallonTip("All classes finished!", "You are ready to go!");
+                    lblTitleNext.Content = "All classes are finished!";
+                }
             }
             else
             {
@@ -116,6 +142,23 @@ namespace SchoolClassesReminder
             }
 
             lblTimer.Content = this.timeLeft;
+        }
+
+        // Initiates a timer with duration the given ticks
+        private void InitiateTimer(long ticks)
+        {
+            this.timeLeft = new TimeSpan(ticks);
+
+            if (this.timer.IsEnabled)
+            {
+                this.timer.Stop();
+            }
+
+            this.timer = new DispatcherTimer();
+
+            this.timer.Interval = TimeSpan.FromSeconds(1);
+            this.timer.Tick += Timer_Tick;
+            this.timer.Start();
         }
     }
 }

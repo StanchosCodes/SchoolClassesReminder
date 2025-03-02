@@ -12,11 +12,12 @@ namespace SchoolClassesReminder
     /// </summary>
     public partial class App : Win.Application
     {
-        private readonly WinForms.NotifyIcon notifyIcon;
+        private static WinForms.NotifyIcon notifyIcon = null!;
+        //private readonly MainWindow mainWindow;
 
         public App()
         {
-            this.notifyIcon = new NotifyIcon();
+            notifyIcon = new NotifyIcon();
         }
 
         protected override void OnStartup(Win.StartupEventArgs e)
@@ -24,18 +25,23 @@ namespace SchoolClassesReminder
             MainWindow = new MainWindow();
             MainWindow.Show();
 
-            this.notifyIcon.Icon = new System.Drawing.Icon("Resources/instagram_icon.ico");
-            this.notifyIcon.Text = "Classes Reminder";
-            this.notifyIcon.Click += NotifyIcon_Click;
+            notifyIcon.Icon = new System.Drawing.Icon("Resources/instagram_icon.ico");
+            notifyIcon.Text = "Classes Reminder";
+            notifyIcon.Click += NotifyIcon_Click;
 
-            this.notifyIcon.ContextMenuStrip = new WinForms.ContextMenuStrip();
-            this.notifyIcon.ContextMenuStrip.Items.Add("Test", Drawing.Image.FromFile("Resources/instagram_icon.ico"), OnTestClicked);
+            notifyIcon.ContextMenuStrip = new WinForms.ContextMenuStrip();
+            notifyIcon.ContextMenuStrip.Items.Add("Test", Drawing.Image.FromFile("Resources/instagram_icon.ico"), OnTestClicked);
 
-            this.notifyIcon.Visible = true;
+            notifyIcon.Visible = true;
 
-            this.notifyIcon.ShowBalloonTip(3000, "Application started", "The School classes reminder is now in your apps tray!", ToolTipIcon.Info);
+            notifyIcon.ShowBalloonTip(3000, "Application started", "The School classes reminder is now in your apps tray!", ToolTipIcon.Info);
 
             base.OnStartup(e);
+        }
+
+        public static void ShowBallonTip(string title, string message)
+        {
+            notifyIcon.ShowBalloonTip(3000, title, message, ToolTipIcon.Info);
         }
 
         private void OnTestClicked(object? sender, EventArgs e)
@@ -50,7 +56,7 @@ namespace SchoolClassesReminder
         }
         protected override void OnExit(Win.ExitEventArgs e)
         {
-            this.notifyIcon.Dispose();
+            notifyIcon.Dispose();
 
             base.OnExit(e);
         }

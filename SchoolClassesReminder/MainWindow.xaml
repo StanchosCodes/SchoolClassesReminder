@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SchoolClassesReminder"
         mc:Ignorable="d"
-        Title="MainWindow" Height="550" Width="800">
+        Title="MainWindow" Height="800" Width="800">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -18,7 +18,9 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Label HorizontalContentAlignment="Center">Next class in:</Label>
+        <Label HorizontalContentAlignment="Center" Height="26" Grid.RowSpan="2" VerticalAlignment="Top" x:Name="lblTitleNext">
+            Recess in:
+        </Label>
         <Label Grid.Row="1" x:Name="lblTimer">Timer</Label>
         
         <Label Grid.Column="1" HorizontalContentAlignment="Center">
@@ -35,8 +37,28 @@
             <Label>Duration of recesses:</Label>
             <TextBox x:Name="txtDurationOfRecesses" />
 
-            <Label>Duration of big recess:</Label>
-            <TextBox x:Name="txtDurationOfBigRecess" />
+            <CheckBox x:Name="checkBoxBigRecess" Margin="0,5,0,0">
+                Is there big recess?
+            </CheckBox>
+
+            <Label x:Name="lblClasses" Visibility="Hidden">
+                After which class is the big recess?
+            </Label>
+            <ComboBox x:Name="listBoxClasses" Margin="0,5,0,0" SelectedIndex="0" Visibility="Hidden">
+                <ComboBoxItem>After the 1st class </ComboBoxItem>
+                <ComboBoxItem>After the 2nd class</ComboBoxItem>
+                <ComboBoxItem>After the 3rd class</ComboBoxItem>
+                <ComboBoxItem>After the 4th class</ComboBoxItem>
+                <ComboBoxItem>After the 5th class</ComboBoxItem>
+                <ComboBoxItem>After the 6th class</ComboBoxItem>
+                <ComboBoxItem>After the 7th class</ComboBoxItem>
+                <ComboBoxItem>After the 8th class</ComboBoxItem>
+            </ComboBox>
+
+            <Label x:Name="lblTypeDurationOfBigRecess" Visibility="Hidden">
+                Duration of big recess:
+            </Label>
+            <TextBox x:Name="txtDurationOfBigRecess" Visibility="Hidden"/>
 
             <Button x:Name="buttonAddDetails" Margin="0,5,0,0" Click="ButtonAddDetails_Click">
                 Submit Details
@@ -53,8 +75,12 @@
             <Label Margin="0,10,0,0">Duration of recesses:</Label>
             <Label x:Name="lblDurationOfRecesses">0 minutes</Label>
 
-            <Label Margin="0,10,0,0">Duration of big recess:</Label>
-            <Label x:Name="lblDurationOfBigRecess">0 minutes</Label>
+            <Label x:Name="lblDurationOfBigRecess" Margin="0,10,0,0" Visibility="Hidden">
+                Duration of big recess:
+            </Label>
+            <Label x:Name="lblValueDurationOfBigRecess" Visibility="Hidden">
+                0 minutes
+            </Label>
         </StackPanel>
     </Grid>
 </Window>

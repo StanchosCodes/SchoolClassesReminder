@@ -1,4 +1,5 @@
-﻿using System.Windows.Threading;
+﻿using System.Windows;
+using System.Windows.Threading;
 using Win = System.Windows;
 
 namespace SchoolClassesReminder
@@ -24,26 +25,58 @@ namespace SchoolClassesReminder
             this.durationOfRecesses = 0;
             this.durationOfBigRecess = 0;
             this.timer = new DispatcherTimer();
+            checkBoxBigRecess.Click += CheckBoxBigRecess_Clicked;
+        }
+
+        private void CheckBoxBigRecess_Clicked(object sender, RoutedEventArgs e)
+        {
+            if (checkBoxBigRecess.IsChecked == true)
+            {
+                lblClasses.Visibility = Visibility.Visible;
+                listBoxClasses.Visibility = Visibility.Visible;
+                lblTypeDurationOfBigRecess.Visibility = Visibility.Visible;
+                txtDurationOfBigRecess.Visibility = Visibility.Visible;
+            } else
+            {
+                lblClasses.Visibility = Visibility.Hidden;
+                listBoxClasses.Visibility = Visibility.Hidden;
+                lblTypeDurationOfBigRecess.Visibility = Visibility.Hidden;
+                txtDurationOfBigRecess.Visibility = Visibility.Hidden;
+            }
         }
 
         private void ButtonAddDetails_Click(object sender, Win.RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(txtNumberOfClasses.Text) && !string.IsNullOrEmpty(txtDurationOfClasses.Text) && !string.IsNullOrEmpty(txtDurationOfRecesses.Text))
+            if (!string.IsNullOrEmpty(txtNumberOfClasses.Text) 
+                && !string.IsNullOrEmpty(txtDurationOfClasses.Text) 
+                && !string.IsNullOrEmpty(txtDurationOfRecesses.Text) 
+                && ((checkBoxBigRecess.IsChecked == true && !string.IsNullOrEmpty(txtDurationOfBigRecess.Text)) || checkBoxBigRecess.IsChecked == false))
             {
                 this.numberOfClasses = int.Parse(txtNumberOfClasses.Text);
                 this.durationOfClasses = int.Parse(txtDurationOfClasses.Text);
                 this.durationOfRecesses = int.Parse(txtDurationOfRecesses.Text);
-                this.durationOfBigRecess = int.Parse(txtDurationOfBigRecess.Text);
 
                 lblNumberOfClasses.Content = this.numberOfClasses;
                 lblDurationOfClasses.Content = this.durationOfClasses + " minutes";
                 lblDurationOfRecesses.Content = this.durationOfRecesses + " minutes";
-                lblDurationOfBigRecess.Content = this.durationOfBigRecess + " minutes";
 
-                txtNumberOfClasses.Clear();
+                if (checkBoxBigRecess.IsChecked == true)
+                {
+                    lblDurationOfBigRecess.Visibility = Visibility.Visible;
+                    lblValueDurationOfBigRecess.Visibility = Visibility.Visible;
+
+                    this.durationOfBigRecess = int.Parse(txtDurationOfBigRecess.Text);
+                    lblValueDurationOfBigRecess.Content = this.durationOfBigRecess + " minutes";
+                    txtDurationOfBigRecess.Clear();
+                } else
+                {
+                    lblDurationOfBigRecess.Visibility = Visibility.Hidden;
+                    lblValueDurationOfBigRecess.Visibility = Visibility.Hidden;
+                }
+
+                    txtNumberOfClasses.Clear();
                 txtDurationOfClasses.Clear();
                 txtDurationOfRecesses.Clear();
-                txtDurationOfBigRecess.Clear();
 
                 long durationOfClassesInTicks = this.durationOfClasses * TimeSpan.TicksPerMinute;
 
@@ -59,6 +92,8 @@ namespace SchoolClassesReminder
                 this.timer.Tick += Timer_Tick;
                 this.timer.Start();
 
+                lblTitleNext.Content = "Recess in:";
+
                 Win.MessageBox.Show("Details added!");
             }
             else
@@ -73,6 +108,7 @@ namespace SchoolClassesReminder
             {
                 this.timer.Stop();
                 Win.MessageBox.Show("The class has ended. Your recess starts now!");
+                lblTitleNext.Content = "Next class in:";
             }
             else
             {

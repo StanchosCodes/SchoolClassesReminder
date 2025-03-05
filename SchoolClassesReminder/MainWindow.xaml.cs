@@ -108,7 +108,7 @@ namespace SchoolClassesReminder
                     lblValueDurationOfBigRecess.Content = this.durationOfBigRecess + " minutes";
                     txtDurationOfBigRecess.Clear();
 
-                    this.bigRecessAfterClass = listBoxClasses.SelectedIndex + 1;
+                    this.bigRecessAfterClass = listBoxClasses.SelectedIndex;
                     this.durationOfBigRecessInTicks = this.durationOfBigRecess * TimeSpan.TicksPerMinute;
                 }
                 else
@@ -128,6 +128,7 @@ namespace SchoolClassesReminder
 
                 InitiateTimer(this.durationOfClassesInTicks);
                 lblCurrentClass.Visibility = Visibility.Visible;
+                this.classesCounter = 0;
                 lblCurrentClass.Content = $"Your current class is: {this.classesCounter + 1}";
 
                 if (this.numberOfClasses == 1)

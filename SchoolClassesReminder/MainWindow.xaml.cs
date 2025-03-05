@@ -21,6 +21,7 @@ namespace SchoolClassesReminder
         private long durationOfRecessesInTicks = 0;
         private long durationOfBigRecessInTicks = 0;
         private int bigRecessAfterClass = 0;
+        private long classAbsenceInTicks = TimeSpan.FromMinutes(15).Ticks; // the ticks of 15 minutes - the time when the class is considered as absent
 
         public MainWindow()
         {
@@ -186,6 +187,11 @@ namespace SchoolClassesReminder
             }
 
             lblTimer.Content = this.timeLeft;
+
+            if (TimeSpan.FromMinutes(this.durationOfClasses).Ticks - this.timeLeft.Ticks == this.classAbsenceInTicks)
+            {
+                App.ShowBallonTip("Absence time!", "15 minutes have passed. You can consider class as absent from now on.");
+            }
         }
 
         // Initiates a timer with duration the given ticks

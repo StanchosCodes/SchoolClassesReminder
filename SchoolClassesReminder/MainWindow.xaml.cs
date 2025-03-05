@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Diagnostics.Metrics;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
 using Win = System.Windows;
 
@@ -33,6 +35,26 @@ namespace SchoolClassesReminder
             this.durationOfBigRecess = 0;
             this.timer = new DispatcherTimer();
             checkBoxBigRecess.Click += CheckBoxBigRecess_Clicked;
+            txtNumberOfClasses.LostFocus += TxtNumberOfClasses_LostFocus;
+        }
+
+        private void TxtNumberOfClasses_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(txtNumberOfClasses.Text))
+            {
+                int classesCount = int.Parse(txtNumberOfClasses.Text);
+
+                listBoxClasses.Items.Clear();
+                listBoxClasses.Items.Add("Choose a class");
+                listBoxClasses.SelectedIndex = 0;
+
+                for (int i = 0; i < classesCount; i++)
+                {
+                    string numPostfix = i == 0 ? "st" : i == 1 ? "nd" : i == 2 ? "rd" : "th";
+
+                    listBoxClasses.Items.Add($"After the {i + 1}{numPostfix} class");
+                }
+            }
         }
 
         private void CheckBoxBigRecess_Clicked(object sender, RoutedEventArgs e)
@@ -45,10 +67,10 @@ namespace SchoolClassesReminder
                 txtDurationOfBigRecess.Visibility = Visibility.Visible;
             } else
             {
-                lblClasses.Visibility = Visibility.Hidden;
-                listBoxClasses.Visibility = Visibility.Hidden;
-                lblTypeDurationOfBigRecess.Visibility = Visibility.Hidden;
-                txtDurationOfBigRecess.Visibility = Visibility.Hidden;
+                lblClasses.Visibility = Visibility.Collapsed;
+                listBoxClasses.Visibility = Visibility.Collapsed;
+                lblTypeDurationOfBigRecess.Visibility = Visibility.Collapsed;
+                txtDurationOfBigRecess.Visibility = Visibility.Collapsed;
             }
         }
 

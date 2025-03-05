@@ -25,12 +25,16 @@ namespace SchoolClassesReminder
             MainWindow = new MainWindow();
             MainWindow.Show();
 
-            notifyIcon.Icon = new System.Drawing.Icon("Resources/instagram_icon.ico");
+            notifyIcon?.Dispose();
+
+            notifyIcon = new NotifyIcon();
+
+            notifyIcon.Icon = new System.Drawing.Icon("Resources/school_bell.ico");
             notifyIcon.Text = "Classes Reminder";
             notifyIcon.Click += NotifyIcon_Click;
 
             notifyIcon.ContextMenuStrip = new WinForms.ContextMenuStrip();
-            notifyIcon.ContextMenuStrip.Items.Add("Test", Drawing.Image.FromFile("Resources/instagram_icon.ico"), OnTestClicked);
+            notifyIcon.ContextMenuStrip.Items.Add("Test", Drawing.Image.FromFile("Resources/school_bell.ico"), OnTestClicked);
 
             notifyIcon.Visible = true;
 
@@ -51,6 +55,8 @@ namespace SchoolClassesReminder
 
         private void NotifyIcon_Click(object? sender, EventArgs e)
         {
+            MainWindow.Show();
+
             MainWindow.WindowState = Win.WindowState.Normal;
             MainWindow.Activate();
         }

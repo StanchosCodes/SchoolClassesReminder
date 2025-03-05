@@ -38,6 +38,16 @@ namespace SchoolClassesReminder
             txtNumberOfClasses.LostFocus += TxtNumberOfClasses_LostFocus;
         }
 
+        protected override void OnStateChanged(EventArgs e)
+        {
+            base.OnStateChanged(e);
+
+            if (WindowState == WindowState.Minimized)
+            {
+                Hide();
+            }
+        }
+
         private void TxtNumberOfClasses_LostFocus(object sender, RoutedEventArgs e)
         {
             if (!string.IsNullOrEmpty(txtNumberOfClasses.Text))

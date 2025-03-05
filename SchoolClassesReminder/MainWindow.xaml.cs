@@ -95,6 +95,8 @@ namespace SchoolClassesReminder
                 this.durationOfRecessesInTicks = this.durationOfRecesses * TimeSpan.TicksPerMinute;
 
                 InitiateTimer(this.durationOfClassesInTicks);
+                lblCurrentClass.Visibility = Visibility.Visible;
+                lblCurrentClass.Content = $"Your current class is: {this.classesCounter + 1}";
 
                 if (this.numberOfClasses == 1)
                 {
@@ -134,11 +136,13 @@ namespace SchoolClassesReminder
                         {
                             InitiateTimer(this.durationOfBigRecessInTicks);
                             App.ShowBallonTip("The class has ended", "Your big recess starts now!");
+                            lblCurrentClass.Content = "You are in big recess!";
                         }
                         else
                         {
                             InitiateTimer(this.durationOfRecessesInTicks);
                             App.ShowBallonTip("The class has ended", "Your recess starts now!");
+                            lblCurrentClass.Content = "You are in recess!";
                         }
 
                         if (this.numberOfClasses - this.classesCounter == 1)
@@ -173,12 +177,15 @@ namespace SchoolClassesReminder
                         {
                             lblTitleNext.Content = "This is your last class!";
                         }
+
+                        lblCurrentClass.Content = $"Your current class is: {this.classesCounter}";
                     }
                 }
                 else
                 {
                     App.ShowBallonTip("All classes finished!", "You are ready to go!");
                     lblTitleNext.Content = "All classes are finished!";
+                    lblCurrentClass.Visibility = Visibility.Hidden;
                 }
             }
             else

@@ -21,7 +21,12 @@
         <Label HorizontalContentAlignment="Center" Height="26" Grid.RowSpan="2" VerticalAlignment="Top" x:Name="lblTitleNext">
             Recess in:
         </Label>
+        
         <Label Grid.Row="1" x:Name="lblTimer">Timer</Label>
+        
+        <Label Grid.RowSpan="2" VerticalAlignment="Center" x:Name="lblCurrentClass" Visibility="Hidden">
+            Current class:
+        </Label>
         
         <Label Grid.Column="1" HorizontalContentAlignment="Center">
             Type some details
@@ -61,7 +66,7 @@
             <TextBox x:Name="txtDurationOfBigRecess" Visibility="Hidden"/>
 
             <Button x:Name="buttonAddDetails" Margin="0,5,0,0" Click="ButtonAddDetails_Click">
-                Submit Details
+                Start Timer
             </Button>
         </StackPanel>
 

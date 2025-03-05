@@ -17,9 +17,10 @@ namespace SchoolClassesReminder
         private DispatcherTimer timer;
         private int classesCounter = 0;
         private int recessesCounter = 0;
-        private long dirationOfClassesInTicks = 0;
-        private long dirationOfRecessesInTicks = 0;
-        private long dirationOfBigRecessInTicks = 0;
+        private long durationOfClassesInTicks = 0;
+        private long durationOfRecessesInTicks = 0;
+        private long durationOfBigRecessInTicks = 0;
+        private int bigRecessAfterClass = 0;
 
         public MainWindow()
         {
@@ -74,8 +75,10 @@ namespace SchoolClassesReminder
                     lblValueDurationOfBigRecess.Content = this.durationOfBigRecess + " minutes";
                     txtDurationOfBigRecess.Clear();
 
-                    this.dirationOfBigRecessInTicks = this.durationOfBigRecess * TimeSpan.TicksPerMinute;
-                } else
+                    this.bigRecessAfterClass = listBoxClasses.SelectedIndex + 1;
+                    this.durationOfBigRecessInTicks = this.durationOfBigRecess * TimeSpan.TicksPerMinute;
+                }
+                else
                 {
                     lblDurationOfBigRecess.Visibility = Visibility.Hidden;
                     lblValueDurationOfBigRecess.Visibility = Visibility.Hidden;
@@ -87,11 +90,27 @@ namespace SchoolClassesReminder
 
                 Win.MessageBox.Show("Details added!");
 
-                this.dirationOfClassesInTicks = this.durationOfClasses * TimeSpan.TicksPerMinute;
-                this.dirationOfRecessesInTicks = this.durationOfRecesses * TimeSpan.TicksPerMinute;
+                this.durationOfClassesInTicks = this.durationOfClasses * TimeSpan.TicksPerMinute;
+                this.durationOfRecessesInTicks = this.durationOfRecesses * TimeSpan.TicksPerMinute;
 
-                InitiateTimer(this.dirationOfClassesInTicks);
-                lblTitleNext.Content = "Recess in:";
+                InitiateTimer(this.durationOfClassesInTicks);
+
+                if (this.numberOfClasses == 1)
+                {
+                    lblTitleNext.Content = "This is your last class!";
+                }
+                else
+                {
+                    if (this.bigRecessAfterClass == 1)
+                    {
+                        lblTitleNext.Content = "Big recess in:";
+                    }
+                    else
+                    {
+                        lblTitleNext.Content = "Recess in:";
+                    }
+                }
+
                 this.classesCounter++;
             }
             else
@@ -110,19 +129,44 @@ namespace SchoolClassesReminder
                 {
                     if (recessesCounter < classesCounter)
                     {
-                        InitiateTimer(this.dirationOfRecessesInTicks);
-                        lblTitleNext.Content = "Next class in:";
-                        App.ShowBallonTip("The class has ended", "Your recess starts now!");
+                        if (classesCounter == this.bigRecessAfterClass)
+                        {
+                            InitiateTimer(this.durationOfBigRecessInTicks);
+                            App.ShowBallonTip("The class has ended", "Your big recess starts now!");
+                        }
+                        else
+                        {
+                            InitiateTimer(this.durationOfRecessesInTicks);
+                            App.ShowBallonTip("The class has ended", "Your recess starts now!");
+                        }
+
+                        if (this.numberOfClasses - this.classesCounter == 1)
+                        {
+                            lblTitleNext.Content = "Last class in:";
+                        }
+                        else
+                        {
+                            lblTitleNext.Content = "Next class in:";
+                        }
+                        
                         this.recessesCounter++;
-                    } else
+                    }
+                    else
                     {
-                        InitiateTimer(this.dirationOfClassesInTicks);
+                        InitiateTimer(this.durationOfClassesInTicks);
                         App.ShowBallonTip("The recess has ended", "Your next class starts now!");
                         this.classesCounter++;
 
                         if (this.classesCounter != this.numberOfClasses)
                         {
-                            lblTitleNext.Content = "Recess in:";
+                            if (this.classesCounter == this.bigRecessAfterClass)
+                            {
+                                lblTitleNext.Content = "Big recess in:";
+                            }
+                            else
+                            {
+                                lblTitleNext.Content = "Recess in:";
+                            }
                         }
                         else
                         {

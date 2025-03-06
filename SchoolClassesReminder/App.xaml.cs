@@ -38,8 +38,6 @@ namespace SchoolClassesReminder
 
             notifyIcon.Visible = true;
 
-            notifyIcon.ShowBalloonTip(3000, "Application started", "The School classes reminder is now in your apps tray!", ToolTipIcon.Info);
-
             base.OnStartup(e);
         }
 

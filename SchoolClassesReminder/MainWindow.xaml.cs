@@ -40,6 +40,10 @@ namespace SchoolClassesReminder
 
             PopulateComboBoxHours();
             PopulateComboBoxMinutes();
+            AddHintToField("6", txtNumberOfClasses);
+            AddHintToField("45", txtDurationOfClasses);
+            AddHintToField("10", txtDurationOfRecesses);
+            AddHintToField("20", txtDurationOfBigRecess);
         }
 
         protected override void OnStateChanged(EventArgs e)
@@ -50,25 +54,6 @@ namespace SchoolClassesReminder
             {
                 Hide();
                 App.ShowBallonTip("Application minimized", "The School classes reminder is now in your apps tray!");
-            }
-        }
-
-        private void TxtNumberOfClasses_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (!string.IsNullOrEmpty(txtNumberOfClasses.Text))
-            {
-                int classesCount = int.Parse(txtNumberOfClasses.Text);
-
-                listBoxClasses.Items.Clear();
-                listBoxClasses.Items.Add("Choose a class");
-                listBoxClasses.SelectedIndex = 0;
-
-                for (int i = 0; i < classesCount; i++)
-                {
-                    string numPostfix = i == 0 ? "st" : i == 1 ? "nd" : i == 2 ? "rd" : "th";
-
-                    listBoxClasses.Items.Add($"After the {i + 1}{numPostfix} class");
-                }
             }
         }
 
@@ -91,13 +76,24 @@ namespace SchoolClassesReminder
 
         private void ButtonAddDetails_Click(object sender, Win.RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(txtNumberOfClasses.Text) 
-                && !string.IsNullOrEmpty(txtDurationOfClasses.Text) 
-                && !string.IsNullOrEmpty(txtDurationOfRecesses.Text) 
+            if (!string.IsNullOrEmpty(txtNumberOfClasses.Text)
+                && !string.IsNullOrEmpty(txtDurationOfClasses.Text)
+                && !string.IsNullOrEmpty(txtDurationOfRecesses.Text)
                 && ((checkBoxBigRecess.IsChecked == true && !string.IsNullOrEmpty(txtDurationOfBigRecess.Text)) || checkBoxBigRecess.IsChecked == false)
                 && comboBoxHours.SelectedIndex > -1
-                && comboBoxMinutes.SelectedIndex > -1)
+                && comboBoxMinutes.SelectedIndex > -1
+                && ValidateAllFields())
             {
+                if (checkBoxBigRecess.IsChecked == true && int.Parse(txtNumberOfClasses.Text) > 1 && listBoxClasses.SelectedIndex == 0)
+                {
+                    listBoxClassesError.Visibility = Visibility.Visible;
+                    return;
+                }
+                else
+                {
+                    listBoxClassesError.Visibility = Visibility.Collapsed;
+                }
+
                 this.classesStartTime = new TimeSpan(int.Parse(comboBoxHours.Text), int.Parse(comboBoxMinutes.Text), 0);
                 this.numberOfClasses = int.Parse(txtNumberOfClasses.Text);
                 this.durationOfClasses = int.Parse(txtDurationOfClasses.Text);
@@ -335,6 +331,158 @@ namespace SchoolClassesReminder
             {
                 comboBoxMinutes.Items.Add(i.ToString("D2"));
             }
+        }
+
+        private void AddHintToField(string hint, System.Windows.Controls.TextBox field)
+        {
+            field.Text = hint;
+            field.Foreground = System.Windows.Media.Brushes.Gray;
+        }
+
+        private void TxtNumberOfClasses_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (txtNumberOfClasses.Foreground == System.Windows.Media.Brushes.Gray)
+            {
+                txtNumberOfClasses.Text = "";
+                txtNumberOfClasses.Foreground = System.Windows.Media.Brushes.Black;
+            }
+        }
+
+        private void TxtNumberOfClasses_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(txtNumberOfClasses.Text))
+            {
+                if (ValidateIntField(txtNumberOfClasses.Text))
+                {
+                    txtNumberOfClassesError.Visibility = Visibility.Collapsed;
+                    int classesCount = int.Parse(txtNumberOfClasses.Text);
+
+                    listBoxClasses.Items.Clear();
+                    listBoxClasses.Items.Add("Choose a class");
+                    listBoxClasses.SelectedIndex = 0;
+
+                    for (int i = 0; i < classesCount - 1; i++)
+                    {
+                        string numPostfix = i == 0 ? "st" : i == 1 ? "nd" : i == 2 ? "rd" : "th";
+
+                        listBoxClasses.Items.Add($"After the {i + 1}{numPostfix} class");
+                    }
+                }
+                else
+                {
+                    txtNumberOfClassesError.Visibility = Visibility.Visible;
+                }
+            }
+            else
+            {
+                AddHintToField("6", txtNumberOfClasses);
+                txtNumberOfClassesError.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void TxtDurationsOfClasses_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (txtDurationOfClasses.Foreground == System.Windows.Media.Brushes.Gray)
+            {
+                txtDurationOfClasses.Text = "";
+                txtDurationOfClasses.Foreground = System.Windows.Media.Brushes.Black;
+            }
+        }
+
+        private void TxtDurationsOfClasses_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(txtDurationOfClasses.Text))
+            {
+                AddHintToField("45", txtDurationOfClasses);
+                txtDurationOfClassesError.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                if (!ValidateIntField(txtDurationOfClasses.Text))
+                {
+                    txtDurationOfClassesError.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    txtDurationOfClassesError.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private void TxtDurationsOfRecesses_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (txtDurationOfRecesses.Foreground == System.Windows.Media.Brushes.Gray)
+            {
+                txtDurationOfRecesses.Text = "";
+                txtDurationOfRecesses.Foreground = System.Windows.Media.Brushes.Black;
+            }
+        }
+
+        private void TxtDurationsOfRecesses_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(txtDurationOfRecesses.Text))
+            {
+                AddHintToField("10", txtDurationOfRecesses);
+                txtDurationOfRecessesError.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                if (!ValidateIntField(txtDurationOfRecesses.Text))
+                {
+                    txtDurationOfRecessesError.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    txtDurationOfRecessesError.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private void TxtDurationsOfBigRecess_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (txtDurationOfBigRecess.Foreground == System.Windows.Media.Brushes.Gray)
+            {
+                txtDurationOfBigRecess.Text = "";
+                txtDurationOfBigRecess.Foreground = System.Windows.Media.Brushes.Black;
+            }
+        }
+
+        private void TxtDurationsOfBigRecess_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(txtDurationOfBigRecess.Text))
+            {
+                AddHintToField("20", txtDurationOfBigRecess);
+                txtDurationOfBigRecessError.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                if (!ValidateIntField(txtDurationOfBigRecess.Text))
+                {
+                    txtDurationOfBigRecessError.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    txtDurationOfBigRecessError.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private bool ValidateIntField(string text)
+        {
+            return int.TryParse(text, out int result);
+        }
+
+        private bool ValidateAllFields()
+        {
+            return ValidateIntField(txtNumberOfClasses.Text)
+                && ValidateIntField(txtDurationOfClasses.Text)
+                && ValidateIntField(txtDurationOfRecesses.Text)
+                && ((checkBoxBigRecess.IsChecked == true 
+                    && ValidateIntField(txtDurationOfBigRecess.Text) 
+                    && txtDurationOfBigRecess.Foreground != System.Windows.Media.Brushes.Gray) || checkBoxBigRecess.IsChecked == false)
+                && txtNumberOfClasses.Foreground != System.Windows.Media.Brushes.Gray
+                && txtDurationOfClasses.Foreground != System.Windows.Media.Brushes.Gray
+                && txtDurationOfRecesses.Foreground != System.Windows.Media.Brushes.Gray;
         }
     }
 }

@@ -52,11 +52,11 @@
             <TextBox x:Name="txtNumberOfClasses" GotFocus="TxtNumberOfClasses_GotFocus" />
             <TextBlock x:Name="txtNumberOfClassesError" Foreground="Red" Visibility="Collapsed">Invalid number of classes (example: 6)</TextBlock>
 
-            <Label>Duration of classes:</Label>
+            <Label>Duration of classes in minutes:</Label>
             <TextBox x:Name="txtDurationOfClasses" GotFocus="TxtDurationsOfClasses_GotFocus" LostFocus="TxtDurationsOfClasses_LostFocus" />
             <TextBlock x:Name="txtDurationOfClassesError" Foreground="Red" Visibility="Collapsed">Invalid duration of classes (example: 45)</TextBlock>
 
-            <Label>Duration of recesses:</Label>
+            <Label>Duration of recesses in minutes:</Label>
             <TextBox x:Name="txtDurationOfRecesses" GotFocus="TxtDurationsOfRecesses_GotFocus" LostFocus="TxtDurationsOfRecesses_LostFocus" />
             <TextBlock x:Name="txtDurationOfRecessesError" Foreground="Red" Visibility="Collapsed">Invalid duration of recesses (example: 10)</TextBlock>
 
@@ -73,7 +73,7 @@
             <TextBlock x:Name="listBoxClassesError" Foreground="Red" Visibility="Collapsed">You should choose a class</TextBlock>
 
             <Label x:Name="lblTypeDurationOfBigRecess" Visibility="Collapsed">
-                Duration of big recess:
+                Duration of big recess in minutes:
             </Label>
             <TextBox x:Name="txtDurationOfBigRecess" GotFocus="TxtDurationsOfBigRecess_GotFocus" LostFocus="TxtDurationsOfBigRecess_LostFocus" Visibility="Collapsed"/>
             <TextBlock x:Name="txtDurationOfBigRecessError" Foreground="Red" Visibility="Collapsed">Invalid duration of big recess (example: 20)</TextBlock>

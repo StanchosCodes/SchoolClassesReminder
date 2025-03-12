@@ -18,13 +18,17 @@ namespace SchoolClassesReminder
         private TimeSpan classesStartTime;
         private TimeSpan timeLeft;
         private DispatcherTimer timer;
-        private int classesCounter = 0;
-        private int recessesCounter = 0;
         private long durationOfClassesInTicks = 0;
         private long durationOfRecessesInTicks = 0;
         private long durationOfBigRecessInTicks = 0;
         private int bigRecessAfterClass = 0;
         private long classAbsenceInTicks = TimeSpan.FromMinutes(15).Ticks; // the ticks of 15 minutes - the time when the class is considered as absent
+        private Dictionary<String, long> timeline = new Dictionary<string, long>();
+
+        // 7 classes - 45 minutes each - 10 minutes recess - 20 minutes big recess after the 3rd class
+        // timeline class - recess - class - recess - class - bigRecess - class - recess - class - recess - class - recess - class
+        // 45 - 10 - 45 - 10 - 45 - 20 - 45 - 10 - 45 - 10 - 45 - 10 - 45
+        // Dictionary<String, long> timeline - dictionary with key class/recess/bigRecess and value long duration of the class/recess in ticks
 
         public MainWindow()
         {
@@ -131,6 +135,25 @@ namespace SchoolClassesReminder
                 this.durationOfClassesInTicks = this.durationOfClasses * TimeSpan.TicksPerMinute;
                 this.durationOfRecessesInTicks = this.durationOfRecesses * TimeSpan.TicksPerMinute;
 
+                this.timeline.Clear();
+
+                for (int i = 1; i <= this.numberOfClasses; i++)
+                {
+                    this.timeline.Add($"Class {i}", this.durationOfClassesInTicks);
+                    
+                    if (i != this.numberOfClasses)
+                    {
+                        if (i == this.bigRecessAfterClass)
+                        {
+                            this.timeline.Add("BigRecess", this.durationOfBigRecessInTicks);
+                        }
+                        else
+                        {
+                            this.timeline.Add($"Recess {i}", this.durationOfRecessesInTicks);
+                        }
+                    }
+                }
+
                 DateTime now = DateTime.Now;
                 DateTime classesStart = new DateTime(now.Year, now.Month, now.Day, this.classesStartTime.Hours, this.classesStartTime.Minutes, this.classesStartTime.Seconds);
 
@@ -142,16 +165,48 @@ namespace SchoolClassesReminder
                     InitiateTimer(this.durationOfClassesInTicks);
                     SetDetailsFields();
 
-                    this.classesCounter++;
+                    this.timeline.Remove("Class 1");
                 }
                 else if (compareResult > 0) // the starting time of the classes has passed
                 {
                     long passedTicks = timeSpanCompareResult.Ticks;
 
-                    InitiateTimer(this.durationOfClassesInTicks - passedTicks);
+                    if (passedTicks > this.durationOfClassesInTicks)
+                    {
+                        for (int i = 0; i < this.numberOfClasses; i++)
+                        {
+                            passedTicks -= this.durationOfClassesInTicks;
+                            this.timeline.Remove(this.timeline.Keys.First());
+
+                            if (passedTicks < this.durationOfClassesInTicks)
+                            {
+                                break;
+                            }
+                        }
+
+                        if (passedTicks > this.durationOfRecessesInTicks)
+                        {
+                            passedTicks -= this.durationOfRecessesInTicks;
+                            this.timeline.Remove(this.timeline.Keys.First());
+                        }
+                    }
+                        
+                    if (this.timeline.Keys.First().Contains("Class"))
+                    {
+                        InitiateTimer(this.durationOfClassesInTicks - passedTicks);
+                    }
+                    else if (this.timeline.Keys.First().Contains("BigRecess"))
+                    {
+                        InitiateTimer(this.durationOfBigRecessInTicks - passedTicks);
+                    }
+                    else
+                    {
+                        InitiateTimer(this.durationOfRecessesInTicks - passedTicks);
+                    }
+
                     SetDetailsFields();
 
-                    this.classesCounter++;
+                    this.timeline.Remove(this.timeline.Keys.First());
                 }
                 else // the starting time of the classes is yet to come
                 {
@@ -175,7 +230,7 @@ namespace SchoolClassesReminder
                         InitiateTimer(this.durationOfClassesInTicks);
                         SetDetailsFields();
 
-                        this.classesCounter++;
+                        this.timeline.Remove("Class 1");
 
                         App.ShowBallonTip("Class started", "Your class has started!");
                     };
@@ -198,58 +253,59 @@ namespace SchoolClassesReminder
             if (this.timeLeft.Hours == 0 && this.timeLeft.Minutes == 0 && this.timeLeft.Seconds == 0)
             {
                 this.timer.Stop();
-                
-                if (classesCounter < this.numberOfClasses)
-                {
-                    if (recessesCounter < classesCounter)
-                    {
-                        if (classesCounter == this.bigRecessAfterClass)
-                        {
-                            InitiateTimer(this.durationOfBigRecessInTicks);
-                            App.ShowBallonTip("The class has ended", "Your big recess starts now!");
-                            lblCurrentClass.Content = "You are in big recess!";
-                        }
-                        else
-                        {
-                            InitiateTimer(this.durationOfRecessesInTicks);
-                            App.ShowBallonTip("The class has ended", "Your recess starts now!");
-                            lblCurrentClass.Content = "You are in recess!";
-                        }
 
-                        if (this.numberOfClasses - this.classesCounter == 1)
-                        {
-                            lblTitleNext.Content = "Last class in:";
-                        }
-                        else
-                        {
-                            lblTitleNext.Content = "Next class in:";
-                        }
-                        
-                        this.recessesCounter++;
-                    }
-                    else
+                if (this.timeline.Count > 0)
+                {
+                    string[] nextKeySplited = this.timeline.Keys.First().Split(" ");
+
+                    if (nextKeySplited[0].Contains("Class"))
                     {
                         InitiateTimer(this.durationOfClassesInTicks);
                         App.ShowBallonTip("The recess has ended", "Your next class starts now!");
-                        this.classesCounter++;
 
-                        if (this.classesCounter != this.numberOfClasses)
+
+                        lblCurrentClass.Content = $"Your current class is: {nextKeySplited[1]}";
+                    }
+                    else if (nextKeySplited[0].Contains("BigRecess"))
+                    {
+                        InitiateTimer(this.durationOfBigRecessInTicks);
+                        App.ShowBallonTip("The class has ended", "Your big recess starts now!");
+                        lblCurrentClass.Content = "You are in big recess!";
+                    }
+                    else
+                    {
+                        InitiateTimer(this.durationOfRecessesInTicks);
+                        App.ShowBallonTip("The class has ended", "Your recess starts now!");
+                        lblCurrentClass.Content = "You are in recess!";
+                    }
+
+                    this.timeline.Remove(this.timeline.Keys.First());
+
+                    if (this.timeline.Count > 0)
+                    {
+                        if (this.timeline.First().Key.Contains("Class"))
                         {
-                            if (this.classesCounter == this.bigRecessAfterClass)
+                            if (this.timeline.Count == 1)
                             {
-                                lblTitleNext.Content = "Big recess in:";
+                                lblTitleNext.Content = "Last class in:";
                             }
                             else
                             {
-                                lblTitleNext.Content = "Recess in:";
+                                lblTitleNext.Content = "Next class in:";
                             }
+                        }
+                        else if (this.timeline.Keys.First().Contains("BigRecess"))
+                        {
+                            lblTitleNext.Content = "Big recess in:";
                         }
                         else
                         {
-                            lblTitleNext.Content = "This is your last class!";
+                            lblTitleNext.Content = "Recess in:";
                         }
-
-                        lblCurrentClass.Content = $"Your current class is: {this.classesCounter}";
+                    }
+                    else
+                    {
+                        lblTitleNext.Content = "This is your last class!";
                     }
                 }
                 else
@@ -266,14 +322,17 @@ namespace SchoolClassesReminder
 
             lblTimer.Content = this.timeLeft.ToString().Substring(0, 8);
 
-            if (this.durationOfClasses > 15 && TimeSpan.FromMinutes(this.durationOfClasses).Ticks - this.timeLeft.Ticks == this.classAbsenceInTicks)
+            if (this.lblCurrentClass.Content.ToString()!.Contains("class"))
             {
-                App.ShowBallonTip("Absence time!", "15 minutes have passed. You can consider class as absent from now on.");
-            }
+                if (this.durationOfClasses > 15 && TimeSpan.FromMinutes(this.durationOfClasses).Ticks - this.timeLeft.Ticks == this.classAbsenceInTicks)
+                {
+                    App.ShowBallonTip("Absence time!", "15 minutes have passed. You can consider class as absent from now on.");
+                }
 
-            if (this.durationOfClasses > 2 && this.timeLeft.Minutes == 2 && this.timeLeft.Seconds == 0)
-            {
-                App.ShowBallonTip("Get ready!", "There are 2 minutes left. Prepare for class to finish.");
+                if (this.durationOfClasses > 2 && this.timeLeft.Minutes == 2 && this.timeLeft.Seconds == 0)
+                {
+                    App.ShowBallonTip("Get ready!", "There are 2 minutes left. Prepare for class to finish.");
+                }
             }
         }
 
@@ -297,8 +356,20 @@ namespace SchoolClassesReminder
         private void SetDetailsFields()
         {
             lblCurrentClass.Visibility = Visibility.Visible;
-            this.classesCounter = 0;
-            lblCurrentClass.Content = $"Your current class is: {this.classesCounter + 1}";
+            string[] nextClassKeySplited = this.timeline.Keys.First().Split(" ");
+
+            if (nextClassKeySplited[0].Contains("Class"))
+            {
+                lblCurrentClass.Content = $"Your current class is: {nextClassKeySplited[1]}";
+            }
+            else if (nextClassKeySplited[0].Contains("BigRecess"))
+            {
+                lblCurrentClass.Content = $"You are in big recess!";
+            }
+            else
+            {
+                lblCurrentClass.Content = $"You are in recess!";
+            }
 
             if (this.numberOfClasses == 1)
             {
@@ -306,7 +377,11 @@ namespace SchoolClassesReminder
             }
             else
             {
-                if (this.bigRecessAfterClass == 1)
+                if (this.timeline.Keys.ElementAt(1).Contains("Class"))
+                {
+                    lblTitleNext.Content = "Next class in:";
+                }
+                else if (this.timeline.Keys.ElementAt(1).Contains("BigRecess"))
                 {
                     lblTitleNext.Content = "Big recess in:";
                 }
@@ -319,7 +394,7 @@ namespace SchoolClassesReminder
 
         private void PopulateComboBoxHours()
         {
-            for (int i = 0; i <= 23; i++)
+            for (int i = 1; i <= 23; i++)
             {
                 comboBoxHours.Items.Add(i.ToString("D2"));
             }
@@ -327,7 +402,7 @@ namespace SchoolClassesReminder
 
         private void PopulateComboBoxMinutes()
         {
-            for (int i = 0; i <= 59; i++)
+            for (int i = 1; i <= 59; i++)
             {
                 comboBoxMinutes.Items.Add(i.ToString("D2"));
             }
